@@ -3,6 +3,8 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const auth = require("./middleware/auth");
 require("./db/conn");
 const Register = require("./models/registerModel");
 const hbs = require("hbs");
@@ -51,7 +53,9 @@ app.post("/register", async (req, res) => {
         console.log("abc" + studentRegistration);
 
         const result = await studentRegistration.save();
-        console.log("result declared", result);
+        console.log("result declared" + result);
+        //Generate the token
+
         res.status(201).render("login", {
           message: "Successfully registered",
         });
@@ -78,16 +82,34 @@ app.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(pwd, useremail.pwd);
     console.log("successfully match the record:" + isMatch);
 
+    //generate token
+    const token = jwt.sign(
+      { id: isMatch._id },
+      "mynameissanjayiamfromsuratabdhowareyouandwhatareyoudoingnow",
+      {
+        expiresIn: "2seconds",
+      }
+    );
+    console.log("Generate token:-" + token);
+
     // console.log("data enter", isMatch);
     // return false;
     if (isMatch) {
-      res.status(201).render("secret");
+      res.header("Authorization" + token);
+      res.redirect("/secret");
+      // res.status(201).render("secret");
+
+      //create jwttoken
     } else {
       res.status(400).send("password is not matched");
     }
   } catch (error) {
     res.status(400).send("invalid email");
   }
+});
+
+app.get("/secret", auth, (req, res) => {
+  res.render("secret");
 });
 
 app.get("/logout", (req, res) => {
