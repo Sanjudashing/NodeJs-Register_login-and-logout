@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 
 const path = require("path");
@@ -83,13 +84,9 @@ app.post("/login", async (req, res) => {
     console.log("successfully match the record:" + isMatch);
 
     //generate token
-    const token = jwt.sign(
-      { id: isMatch._id },
-      "mynameissanjayiamfromsuratabdhowareyouandwhatareyoudoingnow",
-      {
-        expiresIn: "2seconds",
-      }
-    );
+    const token = jwt.sign({ id: isMatch._id }, process.env.API_KEY, {
+      expiresIn: "2seconds",
+    });
     console.log("Generate token:-" + token);
 
     // console.log("data enter", isMatch);
