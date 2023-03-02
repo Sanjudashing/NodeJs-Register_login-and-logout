@@ -89,14 +89,17 @@ app.post("/login", async (req, res) => {
     });
     console.log("Generate token:-" + token);
 
+    res.cookie("jwt", token, {
+      expires: new Date(Date.now() + 60000),
+      httpOnly: true,
+    });
+
     // console.log("data enter", isMatch);
     // return false;
     if (isMatch) {
       res.header("Authorization" + token);
       res.redirect("/secret");
       // res.status(201).render("secret");
-
-      //create jwttoken
     } else {
       res.status(400).send("password is not matched");
     }
